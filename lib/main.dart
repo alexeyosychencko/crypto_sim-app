@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'features/market/screens/market_screen.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'shared/widgets/app_shell.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -13,11 +15,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Crypto Sim',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1F1F1F),
+          elevation: 0,
+        ),
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFFFFD700),
+          secondary: Colors.blueAccent,
+        ),
         useMaterial3: true,
       ),
-      home: const MarketScreen(),
+      home: const AppShell(),
     );
   }
 }
