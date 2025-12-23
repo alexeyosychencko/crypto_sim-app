@@ -3,14 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'shared/widgets/app_shell.dart';
 import 'shared/models/wallet.dart';
+import 'shared/models/position.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(WalletAdapter());
+  Hive.registerAdapter(PositionAdapter());
 
   // Open the box once before the app starts
   await Hive.openBox<Wallet>('wallet');
+  await Hive.openBox<Position>('positions');
 
   runApp(const ProviderScope(child: MyApp()));
 }
