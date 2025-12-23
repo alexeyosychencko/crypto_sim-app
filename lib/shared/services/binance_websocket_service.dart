@@ -7,9 +7,22 @@ class BinanceWebsocketService {
   WebSocketChannel? _channel;
   final StreamController<List<TickerData>> _tickerController =
       StreamController.broadcast();
-  final List<String> _symbols = ['btcusdt', 'ethusdt', 'bnbusdt'];
-  final String _baseUrl = 'wss://stream.binance.com:9443/ws';
+  final List<String> _symbols = [
+    'btcusdt',
+    'ethusdt',
+    'bnbusdt',
+    'solusdt',
+    'xrpusdt',
+    'adausdt',
+    'dogeusdt',
+    'avaxusdt',
+    'dotusdt',
+    'maticusdt',
+  ];
+  final String _baseUrl = 'wss://stream.binance.com:9443/stream';
   bool _isConnected = false;
+  // Map to accumulate tickers
+  final Map<String, TickerData> _tickers = {};
   bool _isDisposed = false;
 
   Stream<List<TickerData>> get stream => _tickerController.stream;
@@ -19,7 +32,7 @@ class BinanceWebsocketService {
 
     try {
       final streams = _symbols.map((s) => '$s@ticker').join('/');
-      final uri = Uri.parse('$_baseUrl/$streams');
+      final uri = Uri.parse('$_baseUrl?streams=$streams');
 
       _channel = WebSocketChannel.connect(uri);
       _isConnected = true;
@@ -48,11 +61,18 @@ class BinanceWebsocketService {
 
     try {
       final json = jsonDecode(data);
-      final ticker = TickerData.fromJson(json);
+      // Handle combined stream response format: {"stream": "...", "data": {...}}
+      final tickerData = json.containsKey('data') ? json['data'] : json;
+      final ticker = TickerData.fromJson(tickerData);
+
+      print('Received ticker: ${ticker.symbol}');
+      print('Total tickers: ${_tickers.length}');
 
       if (_isDisposed || _tickerController.isClosed) return;
 
-      _tickerController.add([ticker]);
+      // Update local cache and emit all tickers
+      _tickers[ticker.symbol] = ticker;
+      _tickerController.add(_tickers.values.toList());
     } catch (e) {
       print('Parse/Stream Error: $e');
     }
