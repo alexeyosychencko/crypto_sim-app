@@ -38,7 +38,7 @@ class TickerListItem extends StatelessWidget {
             // Icon Placeholder
             CircleAvatar(
               radius: 20,
-              backgroundColor: Colors.blueGrey.withOpacity(0.2),
+              backgroundColor: Colors.blueGrey.withValues(alpha: 0.2),
               child: Text(
                 name.isNotEmpty ? name[0] : '?',
                 style: const TextStyle(

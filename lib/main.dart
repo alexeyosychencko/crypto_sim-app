@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Crypto Sim',
-      theme: ThemeData.dark().copyWith(
+      theme: ThemeData.dark(useMaterial3: true).copyWith(
         scaffoldBackgroundColor: const Color(0xFF121212),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF1F1F1F),
@@ -35,7 +35,6 @@ class MyApp extends StatelessWidget {
           primary: Color(0xFFFFD700),
           secondary: Colors.blueAccent,
         ),
-        useMaterial3: true,
       ),
       home: const AppShell(),
     );

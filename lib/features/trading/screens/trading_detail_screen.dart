@@ -78,8 +78,9 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
   }
 
   void _closePosition(Position position, double currentPrice) {
-    if (position.symbol != widget.ticker.symbol)
+    if (position.symbol != widget.ticker.symbol) {
       return; // Should not happen if filtered
+    }
 
     // Calculate PnL
     final isLong = position.type == 'long';
@@ -291,9 +292,10 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
             height: 250,
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.1),
+              // backgroundColor: Colors.blueGrey.withValues(alpha: 0.2),
+              color: Colors.grey.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.withOpacity(0.2)),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
             ),
             child: const Center(
               child: Text(
