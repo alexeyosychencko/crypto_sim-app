@@ -66,24 +66,18 @@ class WalletService {
     // NOTE: Usage must ensure 'amount' is the original invested amount, else 'invested' drifts.
     // Warning added in comment.
 
-    if (wallet.invested >= amount) {
-      wallet.invested -= amount;
-      wallet.balance += amount;
-      await wallet.save();
-    } else {
-      // Fallback if we try to release more than tracked (e.g. if we only track simple total)
-      // Just set invested to 0? Or throw?
-      // Let's just do mathematical op and let it handle PnL separately if needed.
-      // Actually, for "Closing a position", typically we:
-      // 1. Remove cost from invested.
-      // 2. Add (Cost + PnL) to balance.
-      // This signature `release(amount)` is ambiguous.
-      // I'll implement "Invested -= amount; Balance += amount" as requested.
+    // Safety: Ensure we never release more than what's invested
+    final releaseAmount = amount > wallet.invested ? wallet.invested : amount;
 
-      wallet.invested -= amount;
-      wallet.balance += amount;
-      await wallet.save();
+    wallet.invested -= releaseAmount;
+    wallet.balance += releaseAmount;
+
+    // Safety: Ensure invested never goes negative
+    if (wallet.invested < 0) {
+      wallet.invested = 0;
     }
+
+    await wallet.save();
   }
 
   Future<void> addToBalance(double amount) async {

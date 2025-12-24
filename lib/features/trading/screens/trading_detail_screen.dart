@@ -5,6 +5,9 @@ import '../../wallet/providers/wallet_provider.dart';
 import '../providers/position_provider.dart';
 import '../../../shared/models/ticker_data.dart';
 import '../../../shared/models/position.dart';
+import '../../../shared/models/trade.dart';
+import '../providers/trade_provider.dart';
+import '../widgets/trade_history_card.dart';
 import '../../../core/constants/crypto_names.dart';
 
 class TradingDetailScreen extends ConsumerStatefulWidget {
@@ -32,7 +35,15 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
     if (_amountController.text.isEmpty) return;
 
     final amount = double.tryParse(_amountController.text);
-    if (amount == null || amount <= 0) return;
+    if (amount == null || amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Enter valid amount'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     final wallet = ref.read(walletProvider);
     if (wallet.balance < amount) {
@@ -45,16 +56,16 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
       return;
     }
 
-    final type = isLong ? 'Long' : 'Short';
+    final typeString = isLong ? 'Long' : 'Short';
     final symbol = widget.ticker.symbol;
+    final price = widget.ticker.lastPrice;
 
     // Create new position
     final position = Position(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       symbol: symbol,
       type: isLong ? 'long' : 'short',
-      entryPrice:
-          widget.ticker.lastPrice, // Ideally use current real-time price
+      entryPrice: price,
       amount: amount,
       leverage: _selectedLeverage,
       openedAt: DateTime.now(),
@@ -69,7 +80,7 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Order placed: $type $symbol $amount USDT x$_selectedLeverage',
+          'Opened $typeString $symbol @ \$${price.toStringAsFixed(2)} | $amount USDT x$_selectedLeverage',
         ),
         backgroundColor: isLong ? Colors.green : Colors.red,
       ),
@@ -89,22 +100,34 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
         : (position.entryPrice - currentPrice) / position.entryPrice;
 
     final double pnl = pnlPercent * position.amount * position.leverage;
-    final double returnAmount = position.amount + pnl;
+
+    // Create Trade object
+    final trade = Trade(
+      id: position.id,
+      symbol: position.symbol,
+      type: position.type,
+      entryPrice: position.entryPrice,
+      exitPrice: currentPrice,
+      amount: position.amount,
+      leverage: position.leverage,
+      pnl: pnl,
+      pnlPercent: pnlPercent * 100,
+      openedAt: position.openedAt,
+      closedAt: DateTime.now(),
+    );
+
+    // Save to history
+    ref.read(tradesProvider.notifier).addTrade(trade);
 
     // Close position
     ref.read(positionsProvider.notifier).close(position.id);
 
-    // Release funds (Original investment + PnL) specifically
-    // Wallet logic "release" adds amount to balance.
-    // If we lost everything (returnAmount < 0), we might need to handle it.
-    // Assuming simple logic:
+    // Correct wallet logic:
+    // 1. Release ONLY the original investment from invested back to balance
+    ref.read(walletProvider.notifier).release(position.amount);
 
-    if (returnAmount > 0) {
-      ref.read(walletProvider.notifier).release(returnAmount);
-    } else {
-      // Total loss, nothing returned? or negative balance?
-      // Simplest: just don't release anything if < 0.
-    }
+    // 2. Add PnL to balance separately (can be positive or negative)
+    ref.read(walletProvider.notifier).updateBalance(pnl);
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -138,6 +161,13 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
         .where((p) => p.symbol == widget.ticker.symbol)
         .toList();
 
+    // Watch trades
+    final allTrades = ref.watch(tradesProvider);
+    // Filter trades for this symbol
+    final myTrades = allTrades
+        .where((t) => t.symbol == widget.ticker.symbol)
+        .toList();
+
     return DefaultTabController(
       length: 3,
       child: Scaffold(
@@ -160,7 +190,7 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
         body: TabBarView(
           children: [
             _buildTradingTab(currentTicker, wallet.balance),
-            const Center(child: Text('Trades History')),
+            _buildTradesTab(myTrades),
             _buildOrdersTab(myPositions, currentTicker),
           ],
         ),
@@ -384,6 +414,20 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTradesTab(List<Trade> trades) {
+    if (trades.isEmpty) {
+      return Center(child: Text('No trades for ${widget.ticker.symbol}'));
+    }
+
+    return ListView.builder(
+      itemCount: trades.length,
+      itemBuilder: (context, index) {
+        final trade = trades[index];
+        return TradeHistoryCard(trade: trade);
+      },
     );
   }
 }

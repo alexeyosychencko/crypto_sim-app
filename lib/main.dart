@@ -4,16 +4,19 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'shared/widgets/app_shell.dart';
 import 'shared/models/wallet.dart';
 import 'shared/models/position.dart';
+import 'shared/models/trade.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(WalletAdapter());
   Hive.registerAdapter(PositionAdapter());
+  Hive.registerAdapter(TradeAdapter());
 
   // Open the box once before the app starts
   await Hive.openBox<Wallet>('wallet');
   await Hive.openBox<Position>('positions');
+  await Hive.openBox<Trade>('trades');
 
   runApp(const ProviderScope(child: MyApp()));
 }
