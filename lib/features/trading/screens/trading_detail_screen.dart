@@ -7,8 +7,12 @@ import '../../../shared/models/ticker_data.dart';
 import '../../../shared/models/position.dart';
 import '../../../shared/models/trade.dart';
 import '../providers/trade_provider.dart';
+import '../providers/price_history_provider.dart';
 import '../widgets/trade_history_card.dart';
+
 import '../../../core/constants/crypto_names.dart';
+import '../providers/kline_provider.dart';
+import '../widgets/candlestick_chart.dart';
 
 class TradingDetailScreen extends ConsumerStatefulWidget {
   final TickerData ticker;
@@ -153,6 +157,9 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
 
     // Watch wallet for balance
     final wallet = ref.watch(walletProvider);
+
+    // Initialize price history provider (watching it ensures it's created)
+    ref.watch(priceHistoryProvider);
 
     // Watch positions
     final positions = ref.watch(positionsProvider);
@@ -317,22 +324,22 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Chart Placeholder
-          Container(
-            height: 250,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              // backgroundColor: Colors.blueGrey.withValues(alpha: 0.2),
-              color: Colors.grey.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-            ),
-            child: const Center(
-              child: Text(
-                'Chart coming soon',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
+          // Price Chart
+          Consumer(
+            builder: (context, ref, child) {
+              final klineAsync = ref.watch(klineProvider(ticker.symbol));
+              return klineAsync.when(
+                data: (klines) => CandlestickChart(candles: klines),
+                loading: () => const SizedBox(
+                  height: 300,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                error: (error, stack) => const SizedBox(
+                  height: 300,
+                  child: Center(child: Text('Failed to load chart')),
+                ),
+              );
+            },
           ),
           const SizedBox(height: 24),
 

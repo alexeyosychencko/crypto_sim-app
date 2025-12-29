@@ -10,6 +10,20 @@ import '../widgets/trade_history_card.dart';
 class TradingScreen extends ConsumerWidget {
   const TradingScreen({super.key});
 
+  // Static list of supported symbols - always show these in UI
+  static const List<String> _supportedSymbols = [
+    'ADAUSDT',
+    'AVAXUSDT',
+    'BNBUSDT',
+    'BTCUSDT',
+    'DOGEUSDT',
+    'DOTUSDT',
+    'ETHUSDT',
+    'POLUSDT', // Changed from MATICUSDT - Polygon rebranded to POL
+    'SOLUSDT',
+    'XRPUSDT',
+  ];
+
   double _getPriceForSymbol(List<dynamic> tickers, String symbol) {
     // tickers is likely List<TickerData>, but using dynamic to be safe if generic type is lost
     // in the call site, though we know it's List<TickerData> from provider.
@@ -47,27 +61,36 @@ class TradingScreen extends ConsumerWidget {
           Expanded(
             child: TabBarView(
               children: [
-                // Market Tab
-                asyncTickers.when(
-                  data: (tickers) {
-                    if (tickers.isEmpty) {
-                      return const Center(child: Text('Waiting for data...'));
-                    }
-                    // Sort alphabetically by symbol (using simple sort for MVP)
-                    final sortedTickers = [...tickers];
-                    sortedTickers.sort((a, b) => a.symbol.compareTo(b.symbol));
+                // Market Tab - Always show all supported symbols
+                Builder(
+                  builder: (context) {
+                    final asyncTickers = ref.watch(tickerStreamProvider);
+                    final Map<String, dynamic> tickerMap = {};
 
+                    // Build map of available ticker data
+                    asyncTickers.whenData((tickers) {
+                      for (var ticker in tickers) {
+                        tickerMap[ticker.symbol] = ticker;
+                      }
+                    });
+
+                    // Always show all symbols, even if data not loaded yet
                     return ListView.builder(
-                      itemCount: sortedTickers.length,
+                      itemCount: _supportedSymbols.length,
                       itemBuilder: (context, index) {
-                        final ticker = sortedTickers[index];
-                        return TickerListItem(ticker: ticker);
+                        final symbol = _supportedSymbols[index];
+                        final ticker = tickerMap[symbol];
+
+                        if (ticker != null) {
+                          // Ticker data available - show it
+                          return TickerListItem(ticker: ticker);
+                        } else {
+                          // Data not yet loaded - show placeholder
+                          return _buildLoadingTickerItem(symbol);
+                        }
                       },
                     );
                   },
-                  error: (error, stack) => Center(child: Text('Error: $error')),
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
                 ),
 
                 // Portfolio Tab
@@ -123,6 +146,50 @@ class TradingScreen extends ConsumerWidget {
                       ),
                 const Center(child: Text('No active orders')),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Build a placeholder ticker item while data is loading
+  Widget _buildLoadingTickerItem(String symbol) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade800, width: 0.5),
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  symbol,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Loading...',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
             ),
           ),
         ],
