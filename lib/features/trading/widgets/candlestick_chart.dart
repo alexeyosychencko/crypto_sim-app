@@ -195,9 +195,12 @@ class _PriceAxisPainter extends CustomPainter {
 
       // Ensure text stays within bounds
       double yPos = y - textPainter.height / 2;
-      if (yPos < 0) yPos = 0;
-      if (yPos + textPainter.height > size.height)
+      if (yPos < 0) {
+        yPos = 0;
+      }
+      if (yPos + textPainter.height > size.height) {
         yPos = size.height - textPainter.height;
+      }
 
       textPainter.paint(canvas, Offset(5, yPos));
 

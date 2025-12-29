@@ -265,7 +265,7 @@ class ProfileScreen extends ConsumerWidget {
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red.withOpacity(0.1),
+          backgroundColor: Colors.red.withValues(alpha: 0.1),
           foregroundColor: Colors.red,
           padding: const EdgeInsets.symmetric(vertical: 16),
         ),

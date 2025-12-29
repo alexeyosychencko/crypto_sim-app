@@ -43,7 +43,7 @@ class TradingScreen extends ConsumerWidget {
     final trades = ref.watch(tradesProvider);
 
     return DefaultTabController(
-      length: 4,
+      length: 3,
       child: Column(
         children: [
           const TabBar(
@@ -55,7 +55,6 @@ class TradingScreen extends ConsumerWidget {
               Tab(text: 'Market'),
               Tab(text: 'Portfolio'),
               Tab(text: 'Trades'),
-              Tab(text: 'Orders'),
             ],
           ),
           Expanded(
@@ -144,7 +143,6 @@ class TradingScreen extends ConsumerWidget {
                           return TradeHistoryCard(trade: trades[index]);
                         },
                       ),
-                const Center(child: Text('No active orders')),
               ],
             ),
           ),
