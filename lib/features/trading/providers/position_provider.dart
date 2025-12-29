@@ -26,6 +26,11 @@ class PositionsNotifier extends Notifier<List<Position>> {
     await _service.closePosition(id);
     state = _service.getPositions(); // Refresh state
   }
+
+  Future<void> reset() async {
+    await _service.clearAllPositions();
+    state = _service.getPositions();
+  }
 }
 
 final positionsProvider = NotifierProvider<PositionsNotifier, List<Position>>(

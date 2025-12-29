@@ -1,4 +1,6 @@
+import 'dart:isolate';
 import 'package:dio/dio.dart';
+import '../../core/constants/app_constants.dart';
 import '../models/kline_data.dart';
 
 class KlineService {
@@ -13,7 +15,7 @@ class KlineService {
   }) async {
     try {
       final response = await _dio.get(
-        'https://api.binance.com/api/v3/klines',
+        '${AppConstants.binanceApiUrl}/klines',
         queryParameters: {
           'symbol': symbol.toUpperCase(),
           'interval': interval,
@@ -22,7 +24,10 @@ class KlineService {
       );
 
       final List<dynamic> data = response.data;
-      return data.map((e) => KlineData.fromJson(e)).toList();
+
+      return await Isolate.run(() {
+        return data.map((e) => KlineData.fromJson(e)).toList();
+      });
     } catch (e) {
       throw Exception('Failed to load klines: $e');
     }

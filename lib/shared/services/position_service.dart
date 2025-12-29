@@ -16,6 +16,10 @@ class PositionService {
     await _box.delete(id);
   }
 
+  Future<void> clearAllPositions() async {
+    await _box.clear();
+  }
+
   Position? getPositionById(String id) {
     return _box.get(id);
   }
