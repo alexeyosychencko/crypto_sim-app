@@ -5,6 +5,7 @@ import 'shared/widgets/app_shell.dart';
 import 'shared/models/wallet.dart';
 import 'shared/models/position.dart';
 import 'shared/models/trade.dart';
+import 'shared/models/bonus_data.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,11 +13,13 @@ void main() async {
   Hive.registerAdapter(WalletAdapter());
   Hive.registerAdapter(PositionAdapter());
   Hive.registerAdapter(TradeAdapter());
+  Hive.registerAdapter(BonusDataAdapter());
 
   // Open the box once before the app starts
   await Hive.openBox<Wallet>('wallet');
   await Hive.openBox<Position>('positions');
   await Hive.openBox<Trade>('trades');
+  await Hive.openBox<BonusData>('bonus');
 
   runApp(const ProviderScope(child: MyApp()));
 }
