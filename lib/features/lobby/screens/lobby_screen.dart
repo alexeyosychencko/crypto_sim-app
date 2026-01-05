@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../wallet/providers/wallet_provider.dart';
+import '../widgets/feature_button.dart';
+import '../../bonus/screens/daily_bonus_screen.dart';
+import '../../bonus/screens/lucky_spin_screen.dart';
 
 class LobbyScreen extends ConsumerWidget {
   const LobbyScreen({super.key});
@@ -40,8 +43,8 @@ class LobbyScreen extends ConsumerWidget {
           _buildBalanceSection(wallet.balance, wallet.invested, totalBalance),
           const SizedBox(height: 16),
 
-          // 4. Extra Features Placeholder
-          _buildExtraFeaturesPlaceholder(),
+          // 4. Feature Buttons
+          _buildFeatureButtons(context),
         ],
       ),
     );
@@ -184,20 +187,57 @@ class LobbyScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildExtraFeaturesPlaceholder() {
-    return Container(
-      height: 100,
-      width: double.infinity,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: const Text(
-        'Additional features coming soon',
-        style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-      ),
+  Widget _buildFeatureButtons(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(
+          child: FeatureButton(
+            label: '500 for\nvideo',
+            icon: Icons.play_circle_fill,
+            gradientColors: const [Colors.red, Colors.orange],
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Coming soon - Watch ad to earn \$500'),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: FeatureButton(
+            label: 'Daily\nbonus',
+            icon: Icons.card_giftcard,
+            gradientColors: const [Colors.amber, Colors.orangeAccent],
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const DailyBonusScreen(),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: FeatureButton(
+            label: 'Lucky\nSpin',
+            icon: Icons.casino,
+            gradientColors: const [Colors.deepPurple, Colors.blue],
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LuckySpinScreen(),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
