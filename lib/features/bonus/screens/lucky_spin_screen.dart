@@ -16,31 +16,31 @@ class LuckySpinScreen extends ConsumerStatefulWidget {
 
 class _LuckySpinScreenState extends ConsumerState<LuckySpinScreen> {
   final StreamController<int> controller = StreamController<int>();
-  static const int spinCost = 3000;
+  static const int spinCost = 100;
   bool isSpinning = false;
   int selectedIndex = 0;
 
   final List<SpinItem> items = [
-    SpinItem(amount: 100, color: Colors.grey, label: '\$100'),
-    SpinItem(
-      amount: 250,
-      color: const Color(0xFFCD7F32),
-      label: '\$250',
-    ), // Bronze
-    SpinItem(
-      amount: 500,
-      color: const Color(0xFFC0C0C0),
-      label: '\$500',
-    ), // Silver
+    SpinItem(amount: 400, color: Colors.grey, icon: Icons.star_border),
     SpinItem(
       amount: 1000,
+      color: const Color(0xFFCD7F32),
+      icon: Icons.star_half,
+    ), // Bronze
+    SpinItem(
+      amount: 2500,
+      color: const Color(0xFFC0C0C0),
+      icon: Icons.star,
+    ), // Silver
+    SpinItem(
+      amount: 5000,
       color: const Color(0xFFFFD700),
-      label: '\$1,000',
+      icon: Icons.auto_awesome,
     ), // Gold
-    SpinItem(amount: 2500, color: Colors.blue, label: '\$2,500'),
-    SpinItem(amount: 5000, color: Colors.purple, label: '\$5,000'),
-    SpinItem(amount: 10000, color: Colors.red, label: '\$10,000'),
-    SpinItem(amount: 0, color: Colors.grey.shade800, label: 'Try Again'),
+    SpinItem(amount: 10000, color: Colors.blue, icon: Icons.diamond),
+    SpinItem(amount: 15000, color: Colors.purple, icon: Icons.whatshot),
+    SpinItem(amount: 20000, color: Colors.red, icon: Icons.rocket_launch),
+    SpinItem(amount: 0, color: Colors.grey.shade800, icon: Icons.refresh),
   ];
 
   @override
@@ -69,7 +69,7 @@ class _LuckySpinScreenState extends ConsumerState<LuckySpinScreen> {
 
     // Generate random index with weights
     // Weights corresponding to items indices: 0..7
-    // $100(30%), $250(25%), $500(20%), $1000(12%), $2500(7%), $5000(4%), $10000(1%), $0(1%)
+    // $400(30%), $1000(25%), $2500(20%), $5000(12%), $10000(7%), $15000(4%), $20000(1%), $0(1%)
     final weights = [30, 25, 20, 12, 7, 4, 1, 1];
     int randomPercent = Random().nextInt(100);
     int currentIndex = 0;
@@ -174,13 +174,7 @@ class _LuckySpinScreenState extends ConsumerState<LuckySpinScreen> {
                 items: [
                   for (var item in items)
                     FortuneItem(
-                      child: Text(
-                        item.label,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white, // Contrast text color
-                        ),
-                      ),
+                      child: Icon(item.icon, size: 40, color: Colors.white),
                       style: FortuneItemStyle(
                         color: item.color,
                         borderColor: Colors.black,
@@ -229,7 +223,7 @@ class _LuckySpinScreenState extends ConsumerState<LuckySpinScreen> {
 class SpinItem {
   final int amount;
   final Color color;
-  final String label;
+  final IconData icon;
 
-  SpinItem({required this.amount, required this.color, required this.label});
+  SpinItem({required this.amount, required this.color, required this.icon});
 }
