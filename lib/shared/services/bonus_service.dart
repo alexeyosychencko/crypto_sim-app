@@ -68,9 +68,10 @@ class BonusService {
     if (data.lastClaimDate != null &&
         _wasClaimedYesterday(data.lastClaimDate!)) {
       newStreak = data.currentStreak + 1;
-      if (newStreak > 7)
+      if (newStreak > 7) {
         newStreak =
             7; // Cap at 7 days for reward purposes, or keep incrementing?
+      }
       // Context says "7 days streak with increasing rewards", usually implies max reward at 7.
       // We will loop cycle or cap logic.
       // Requirement says "7 days streak...". Let's assume day 7 is max and it stays there or loops?
@@ -135,10 +136,11 @@ class BonusService {
     bool broken = isStreakBroken();
 
     if (broken) {
-      if (day == 1)
+      if (day == 1) {
         return canClaimToday()
             ? 'available'
             : 'claimed'; // If broken, we start at 1.
+      }
       return 'locked';
     }
 
@@ -157,8 +159,9 @@ class BonusService {
 
   bool isStreakBroken() {
     final data = getBonusData();
-    if (data.lastClaimDate == null)
+    if (data.lastClaimDate == null) {
       return false; // First time logic handled elsewhere or treated as not broken (start at 1)
+    }
 
     return !canClaimToday()
         ? false

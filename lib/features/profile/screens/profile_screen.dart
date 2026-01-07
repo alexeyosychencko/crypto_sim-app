@@ -8,8 +8,6 @@ import '../../trading/providers/position_provider.dart';
 
 // Import models for type safety
 import '../../../shared/models/wallet.dart';
-import '../../../shared/models/trade.dart';
-import '../../../shared/models/position.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
