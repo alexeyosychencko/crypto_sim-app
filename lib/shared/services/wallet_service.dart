@@ -89,7 +89,7 @@ class WalletService {
 
   Future<void> resetWallet() async {
     final wallet = getWallet();
-    wallet.balance = 3000.0;
+    wallet.balance = 0.0;
     wallet.invested = 0.0;
     await wallet.save();
   }

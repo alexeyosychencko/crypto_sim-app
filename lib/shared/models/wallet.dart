@@ -10,5 +10,5 @@ class Wallet extends HiveObject {
   @HiveField(1)
   double invested;
 
-  Wallet({this.balance = 3000.0, this.invested = 0.0});
+  Wallet({this.balance = 0.0, this.invested = 0.0});
 }

@@ -7,6 +7,9 @@ import 'shared/models/position.dart';
 import 'shared/models/trade.dart';
 import 'shared/models/bonus_data.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'features/onboarding/screens/welcome_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
@@ -21,11 +24,15 @@ void main() async {
   await Hive.openBox<Trade>('trades');
   await Hive.openBox<BonusData>('bonus');
 
-  runApp(const ProviderScope(child: MyApp()));
+  final prefs = await SharedPreferences.getInstance();
+  final isFirstLaunch = prefs.getBool('isFirstLaunch') ?? true;
+
+  runApp(ProviderScope(child: MyApp(isFirstLaunch: isFirstLaunch)));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isFirstLaunch;
+  const MyApp({super.key, required this.isFirstLaunch});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +49,7 @@ class MyApp extends StatelessWidget {
           secondary: Colors.blueAccent,
         ),
       ),
-      home: const AppShell(),
+      home: isFirstLaunch ? const WelcomeScreen() : const AppShell(),
     );
   }
 }
