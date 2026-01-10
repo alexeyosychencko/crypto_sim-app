@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:showcaseview/showcaseview.dart';
 import '../../market/providers/market_provider.dart';
 import '../../wallet/providers/wallet_provider.dart';
 import '../providers/position_provider.dart';
@@ -16,8 +17,13 @@ import '../widgets/candlestick_chart.dart';
 
 class TradingDetailScreen extends ConsumerStatefulWidget {
   final TickerData ticker;
+  final bool isTutorial;
 
-  const TradingDetailScreen({super.key, required this.ticker});
+  const TradingDetailScreen({
+    super.key,
+    required this.ticker,
+    this.isTutorial = false,
+  });
 
   @override
   ConsumerState<TradingDetailScreen> createState() =>
@@ -28,6 +34,11 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
   final TextEditingController _amountController = TextEditingController();
   int _selectedLeverage = 10;
   final List<int> _leverageOptions = [5, 10, 20, 50, 100];
+
+  final GlobalKey _chartKey = GlobalKey();
+  final GlobalKey _longButtonKey = GlobalKey();
+  final GlobalKey _shortButtonKey = GlobalKey();
+  bool _showcaseStarted = false;
 
   @override
   void dispose() {
@@ -175,33 +186,46 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
         .where((t) => t.symbol == widget.ticker.symbol)
         .toList();
 
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(cryptoName),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: const Icon(Icons.currency_bitcoin), // Placeholder icon
+    return ShowCaseWidget(
+      builder: (context) {
+        if (widget.isTutorial && !_showcaseStarted) {
+          _showcaseStarted = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ShowCaseWidget.of(
+              context,
+            ).startShowCase([_chartKey, _longButtonKey, _shortButtonKey]);
+          });
+        }
+
+        return DefaultTabController(
+          length: 3,
+          child: Scaffold(
+            appBar: AppBar(
+              title: Text(cryptoName),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
+                  child: const Icon(Icons.currency_bitcoin), // Placeholder icon
+                ),
+              ],
+              bottom: const TabBar(
+                tabs: [
+                  Tab(text: 'Trading'),
+                  Tab(text: 'Trades'),
+                  Tab(text: 'Orders'),
+                ],
+              ),
             ),
-          ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Trading'),
-              Tab(text: 'Trades'),
-              Tab(text: 'Orders'),
-            ],
+            body: TabBarView(
+              children: [
+                _buildTradingTab(currentTicker, wallet.balance),
+                _buildTradesTab(myTrades),
+                _buildOrdersTab(myPositions, currentTicker),
+              ],
+            ),
           ),
-        ),
-        body: TabBarView(
-          children: [
-            _buildTradingTab(currentTicker, wallet.balance),
-            _buildTradesTab(myTrades),
-            _buildOrdersTab(myPositions, currentTicker),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -296,131 +320,205 @@ class _TradingDetailScreenState extends ConsumerState<TradingDetailScreen> {
         ? Colors.green
         : Colors.red;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Price Section
-          Center(
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '\$${ticker.lastPrice.toStringAsFixed(2)}',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                // Price Section
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        '\$${ticker.lastPrice.toStringAsFixed(2)}',
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '${ticker.priceChangePercent >= 0 ? '+' : ''}${ticker.priceChangePercent.toStringAsFixed(2)}%',
+                        style: TextStyle(
+                          color: priceChangeColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                Text(
-                  '${ticker.priceChangePercent >= 0 ? '+' : ''}${ticker.priceChangePercent.toStringAsFixed(2)}%',
-                  style: TextStyle(
-                    color: priceChangeColor,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(height: 24),
+
+                // Price Chart
+                // Price Chart
+                Showcase(
+                  key: _chartKey,
+                  title: 'Price Chart',
+                  description: 'Analyze real-time market movements here.',
+                  textColor: Colors.white,
+                  tooltipBackgroundColor: Colors.blueGrey.shade900,
+                  tooltipPadding: const EdgeInsets.all(12),
+                  descTextStyle: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                  titleTextStyle: const TextStyle(
+                    color: Colors.amber,
                     fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  child: Consumer(
+                    builder: (context, ref, child) {
+                      final klineAsync = ref.watch(
+                        klineProvider(ticker.symbol),
+                      );
+                      return klineAsync.when(
+                        data: (klines) => CandlestickChart(candles: klines),
+                        loading: () => const SizedBox(
+                          height: 300,
+                          child: Center(child: CircularProgressIndicator()),
+                        ),
+                        error: (error, stack) => const SizedBox(
+                          height: 300,
+                          child: Center(child: Text('Failed to load chart')),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Order Form
+                Text(
+                  'Place Order',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Available: ${balance.toStringAsFixed(2)} USDT',
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 16),
+
+                TextField(
+                  controller: _amountController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Amount (USDT)',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                const Text('Leverage'),
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: _leverageOptions.map((lev) {
+                      final isSelected = _selectedLeverage == lev;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: ChoiceChip(
+                          label: Text('${lev}x'),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            if (selected) {
+                              setState(() {
+                                _selectedLeverage = lev;
+                              });
+                            }
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            border: Border(
+              top: BorderSide(color: Theme.of(context).dividerColor),
+            ),
+          ),
+          child: SafeArea(
+            child: Row(
+              children: [
+                Expanded(
+                  child: Showcase(
+                    key: _longButtonKey,
+                    title: 'Go Long',
+                    description: 'Profit if the price goes UP.',
+                    textColor: Colors.white,
+                    tooltipBackgroundColor: Colors.blueGrey.shade900,
+                    tooltipPadding: const EdgeInsets.all(12),
+                    descTextStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                    titleTextStyle: const TextStyle(
+                      color: Colors.amber,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () => _placeOrder(true),
+                      child: const Text('Long'),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Showcase(
+                    key: _shortButtonKey,
+                    title: 'Go Short',
+                    description: 'Profit if the price goes DOWN.',
+                    textColor: Colors.white,
+                    tooltipBackgroundColor: Colors.blueGrey.shade900,
+                    tooltipPadding: const EdgeInsets.all(12),
+                    descTextStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                    ),
+                    titleTextStyle: const TextStyle(
+                      color: Colors.amber,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      onPressed: () => _placeOrder(false),
+                      child: const Text('Short'),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-
-          // Price Chart
-          Consumer(
-            builder: (context, ref, child) {
-              final klineAsync = ref.watch(klineProvider(ticker.symbol));
-              return klineAsync.when(
-                data: (klines) => CandlestickChart(candles: klines),
-                loading: () => const SizedBox(
-                  height: 300,
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (error, stack) => const SizedBox(
-                  height: 300,
-                  child: Center(child: Text('Failed to load chart')),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 24),
-
-          // Order Form
-          Text('Place Order', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 8),
-          Text(
-            'Available: ${balance.toStringAsFixed(2)} USDT',
-            style: const TextStyle(color: Colors.grey),
-          ),
-          const SizedBox(height: 16),
-
-          TextField(
-            controller: _amountController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Amount (USDT)',
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 12,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          const Text('Leverage'),
-          const SizedBox(height: 8),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: _leverageOptions.map((lev) {
-                final isSelected = _selectedLeverage == lev;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: ChoiceChip(
-                    label: Text('${lev}x'),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() {
-                          _selectedLeverage = lev;
-                        });
-                      }
-                    },
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  onPressed: () => _placeOrder(true),
-                  child: const Text('Long'),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  onPressed: () => _placeOrder(false),
-                  child: const Text('Short'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

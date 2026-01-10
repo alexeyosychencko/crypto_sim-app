@@ -1,18 +1,74 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:showcaseview/showcaseview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../wallet/providers/wallet_provider.dart';
 import '../widgets/feature_button.dart';
 import '../../bonus/screens/daily_bonus_screen.dart';
 import '../../bonus/screens/lucky_spin_screen.dart';
+import '../../trading/screens/trading_detail_screen.dart';
+import '../../../shared/models/ticker_data.dart';
 
-class LobbyScreen extends ConsumerWidget {
+class LobbyScreen extends StatelessWidget {
   const LobbyScreen({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return ShowCaseWidget(
+      onFinish: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => TradingDetailScreen(
+              ticker: TickerData(
+                symbol: 'BTCUSDT',
+                lastPrice: 98000.0,
+                priceChangePercent: 2.5,
+                volume: 1000.0,
+              ),
+              isTutorial: true,
+            ),
+          ),
+        );
+      },
+      builder: (context) => const _LobbyScreenContent(),
+    );
+  }
+}
+
+class _LobbyScreenContent extends ConsumerStatefulWidget {
+  const _LobbyScreenContent();
+
+  @override
+  ConsumerState<_LobbyScreenContent> createState() =>
+      _LobbyScreenContentState();
+}
+
+class _LobbyScreenContentState extends ConsumerState<_LobbyScreenContent> {
+  final GlobalKey _balanceKey = GlobalKey();
+  final GlobalKey _bonusKey = GlobalKey();
+  final GlobalKey _spinKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _checkAndStartShowcase(),
+    );
+  }
+
+  Future<void> _checkAndStartShowcase() async {
+    final prefs = await SharedPreferences.getInstance();
+    final tutorialShown = prefs.getBool('lobby_tutorial_shown') ?? false;
+
+    if (!tutorialShown && mounted) {
+      ShowCaseWidget.of(
+        context,
+      ).startShowCase([_balanceKey, _bonusKey, _spinKey]);
+      await prefs.setBool('lobby_tutorial_shown', true);
+    }
+  }
+
   String _formatCurrency(double value) {
-    // Basic currency formatting with commas
-    // e.g. 3000.0 -> $3,000
-    // Using RegExp for simplicity without external intl package dependency if not present
-    // But for a clean solution ensuring $ and commas:
     final intValue = value.toInt();
     final stringValue = intValue.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
@@ -22,7 +78,7 @@ class LobbyScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final wallet = ref.watch(walletProvider);
     final totalBalance = wallet.balance + wallet.invested;
 
@@ -40,7 +96,26 @@ class LobbyScreen extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // 3. Balance Section
-          _buildBalanceSection(wallet.balance, wallet.invested, totalBalance),
+          Showcase(
+            key: _balanceKey,
+            title: 'Your Balance',
+            description: 'Here you can see your virtual and invested funds.',
+            textColor: Colors.white,
+            tooltipBackgroundColor: Colors.blueGrey.shade900,
+            tooltipPadding: const EdgeInsets.all(12),
+            descTextStyle: const TextStyle(color: Colors.white, fontSize: 14),
+            titleTextStyle: const TextStyle(
+              color: Colors.amber,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            targetPadding: const EdgeInsets.all(4),
+            child: _buildBalanceSection(
+              wallet.balance,
+              wallet.invested,
+              totalBalance,
+            ),
+          ),
           const SizedBox(height: 16),
 
           // 4. Feature Buttons
@@ -207,34 +282,64 @@ class LobbyScreen extends ConsumerWidget {
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: FeatureButton(
-            label: 'Daily\nbonus',
-            icon: Icons.card_giftcard,
-            gradientColors: const [Colors.amber, Colors.orangeAccent],
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const DailyBonusScreen(),
-                ),
-              );
-            },
+          child: Showcase(
+            key: _bonusKey,
+            title: 'Daily Rewards',
+            description: 'Check in every day to get free money!',
+            textColor: Colors.white,
+            tooltipBackgroundColor: Colors.blueGrey.shade900,
+            tooltipPadding: const EdgeInsets.all(12),
+            descTextStyle: const TextStyle(color: Colors.white, fontSize: 14),
+            titleTextStyle: const TextStyle(
+              color: Colors.amber,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            targetPadding: const EdgeInsets.all(4),
+            child: FeatureButton(
+              label: 'Daily\nbonus',
+              icon: Icons.card_giftcard,
+              gradientColors: const [Colors.amber, Colors.orangeAccent],
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DailyBonusScreen(),
+                  ),
+                );
+              },
+            ),
           ),
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: FeatureButton(
-            label: 'Lucky\nSpin',
-            icon: Icons.casino,
-            gradientColors: const [Colors.deepPurple, Colors.blue],
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LuckySpinScreen(),
-                ),
-              );
-            },
+          child: Showcase(
+            key: _spinKey,
+            title: 'Feeling Lucky?',
+            description: 'Spin the wheel to win big prizes.',
+            textColor: Colors.white,
+            tooltipBackgroundColor: Colors.blueGrey.shade900,
+            tooltipPadding: const EdgeInsets.all(12),
+            descTextStyle: const TextStyle(color: Colors.white, fontSize: 14),
+            titleTextStyle: const TextStyle(
+              color: Colors.amber,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+            targetPadding: const EdgeInsets.all(4),
+            child: FeatureButton(
+              label: 'Lucky\nSpin',
+              icon: Icons.casino,
+              gradientColors: const [Colors.deepPurple, Colors.blue],
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LuckySpinScreen(),
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],
