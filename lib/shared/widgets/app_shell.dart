@@ -4,6 +4,7 @@ import '../../features/lobby/screens/lobby_screen.dart';
 import '../../features/trading/screens/trading_screen.dart';
 import '../../features/academy/screens/academy_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
+import '../../features/settings/screens/settings_screen.dart';
 import '../providers/navigation_provider.dart';
 
 class AppShell extends ConsumerWidget {
@@ -27,7 +28,11 @@ class AppShell extends ConsumerWidget {
         title: Text(titles[selectedIndex]),
         leading: IconButton(
           icon: const Icon(Icons.settings),
-          onPressed: () {}, // Placeholder
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            );
+          },
         ),
       ),
       body: screens[selectedIndex],

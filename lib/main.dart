@@ -6,6 +6,7 @@ import 'shared/models/wallet.dart';
 import 'shared/models/position.dart';
 import 'shared/models/trade.dart';
 import 'shared/models/bonus_data.dart';
+import 'shared/providers/theme_provider.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'features/onboarding/screens/welcome_screen.dart';
@@ -30,24 +31,41 @@ void main() async {
   runApp(ProviderScope(child: MyApp(isFirstLaunch: isFirstLaunch)));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   final bool isFirstLaunch;
   const MyApp({super.key, required this.isFirstLaunch});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
+
+    const colorSchemeLight = ColorScheme.light(
+      primary: Color(0xFFFFD700),
+      secondary: Colors.blueAccent,
+    );
+    const colorSchemeDark = ColorScheme.dark(
+      primary: Color(0xFFFFD700),
+      secondary: Colors.blueAccent,
+    );
+
     return MaterialApp(
       title: 'Crypto Sim',
-      theme: ThemeData.dark(useMaterial3: true).copyWith(
+      themeMode: themeMode,
+      theme: ThemeData.light(useMaterial3: true).copyWith(
         scaffoldBackgroundColor: const Color(0xFF121212),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF1F1F1F),
           elevation: 0,
         ),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFFFFD700),
-          secondary: Colors.blueAccent,
+        colorScheme: colorSchemeLight,
+      ),
+      darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1F1F1F),
+          elevation: 0,
         ),
+        colorScheme: colorSchemeDark,
       ),
       home: isFirstLaunch ? const WelcomeScreen() : const AppShell(),
     );
