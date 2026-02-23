@@ -92,7 +92,7 @@ class _LobbyScreenContentState extends ConsumerState<_LobbyScreenContent> {
           const SizedBox(height: 16),
 
           // 2. Bonus Banner
-          _buildBonusBanner(),
+          // _buildBonusBanner(),
           const SizedBox(height: 16),
 
           // 3. Balance Section
