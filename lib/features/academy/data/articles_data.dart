@@ -26,7 +26,7 @@ const List<Article> academyArticles = [
     id: 'leverage',
     title: 'Understanding Leverage',
     summary: 'Multiply gains — and risks',
-    content: 'Leverage lets you control a larger position with less money. With 10x leverage, $100 controls $1000 worth of crypto. This multiplies both profits and losses. Example: price moves 5% in your favor with 10x leverage — you gain 50%. But if it moves 5% against you — you lose 50%. Always use leverage carefully.',
+    content: 'Leverage lets you control a larger position with less money. With 10x leverage, \$100 controls \$1000 worth of crypto. This multiplies both profits and losses. Example: price moves 5% in your favor with 10x leverage — you gain 50%. But if it moves 5% against you — you lose 50%. Always use leverage carefully.',
     readTimeMinutes: 2,
   ),
   Article(
