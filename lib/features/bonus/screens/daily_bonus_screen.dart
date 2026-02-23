@@ -25,7 +25,7 @@ class DailyBonusScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A1A), // Dark background
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Daily Bonus'),
         backgroundColor: Colors.transparent,
@@ -55,12 +55,12 @@ class DailyBonusScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Daily Bonus',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
@@ -74,9 +74,12 @@ class DailyBonusScreen extends ConsumerWidget {
                   ),
                 )
               else
-                const Text(
+                Text(
                   'Start your streak today!',
-                  style: TextStyle(fontSize: 16, color: Colors.white70),
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
                 ),
 
               const SizedBox(height: 8),

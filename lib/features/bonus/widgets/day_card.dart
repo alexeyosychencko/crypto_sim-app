@@ -19,7 +19,7 @@ class DayCard extends StatelessWidget {
     final isAvailable = status == 'available';
 
     Color borderColor = Colors.grey.withValues(alpha: 0.3);
-    Color backgroundColor = Colors.black45;
+    Color backgroundColor = Theme.of(context).cardColor.withValues(alpha: 0.45);
     double opacity = 1.0;
 
     if (isClaimed) {
@@ -54,7 +54,7 @@ class DayCard extends StatelessWidget {
             Text(
               'Day $day',
               style: TextStyle(
-                color: Colors.white70,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -64,8 +64,8 @@ class DayCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               '\$$reward',
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),

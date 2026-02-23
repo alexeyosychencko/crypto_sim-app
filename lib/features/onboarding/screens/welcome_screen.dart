@@ -26,7 +26,7 @@ class WelcomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121212),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -39,9 +39,9 @@ class WelcomeScreen extends ConsumerWidget {
               Container(
                 height: 120,
                 width: 120,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Color(0xFF1F1F1F),
+                  color: Theme.of(context).cardColor,
                 ),
                 child: const Icon(
                   Icons.auto_graph,
@@ -51,13 +51,13 @@ class WelcomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 48),
 
-              const Text(
+              Text(
                 'Welcome, Trader!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 16),

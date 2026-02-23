@@ -85,7 +85,7 @@ class TradingScreen extends ConsumerWidget {
                           return TickerListItem(ticker: ticker);
                         } else {
                           // Data not yet loaded - show placeholder
-                          return _buildLoadingTickerItem(symbol);
+                          return _buildLoadingTickerItem(context, symbol);
                         }
                       },
                     );
@@ -152,7 +152,7 @@ class TradingScreen extends ConsumerWidget {
   }
 
   // Build a placeholder ticker item while data is loading
-  Widget _buildLoadingTickerItem(String symbol) {
+  Widget _buildLoadingTickerItem(BuildContext context, String symbol) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -168,10 +168,10 @@ class TradingScreen extends ConsumerWidget {
               children: [
                 Text(
                   symbol,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),

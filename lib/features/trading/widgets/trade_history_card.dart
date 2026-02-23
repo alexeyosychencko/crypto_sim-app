@@ -17,7 +17,7 @@ class TradeHistoryCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: const Color(0xFF1E1E1E),
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -31,10 +31,10 @@ class TradeHistoryCard extends StatelessWidget {
                   children: [
                     Text(
                       trade.symbol,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -73,8 +73,8 @@ class TradeHistoryCard extends StatelessWidget {
                 ),
                 Text(
                   '${trade.leverage}x',
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.bold,
                   ),
                 ),

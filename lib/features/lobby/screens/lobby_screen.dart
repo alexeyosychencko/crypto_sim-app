@@ -129,7 +129,7 @@ class _LobbyScreenContentState extends ConsumerState<_LobbyScreenContent> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E), // Dark card background
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -142,17 +142,17 @@ class _LobbyScreenContentState extends ConsumerState<_LobbyScreenContent> {
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
                 'Trader',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               SizedBox(height: 4),
-              Text(
+              const Text(
                 'Your rating: 0',
                 style: TextStyle(color: Colors.grey, fontSize: 14),
               ),
@@ -195,15 +195,15 @@ class _LobbyScreenContentState extends ConsumerState<_LobbyScreenContent> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E1E1E),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           Text(
             _formatCurrency(total),
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 32,
               fontWeight: FontWeight.bold,
             ),
@@ -222,8 +222,8 @@ class _LobbyScreenContentState extends ConsumerState<_LobbyScreenContent> {
                   children: [
                     Text(
                       _formatCurrency(freeBalance),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -235,15 +235,15 @@ class _LobbyScreenContentState extends ConsumerState<_LobbyScreenContent> {
                   ],
                 ),
               ),
-              Container(width: 1, height: 40, color: Colors.white24),
+              Container(width: 1, height: 40, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24)),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
                       _formatCurrency(invested),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),

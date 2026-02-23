@@ -40,7 +40,7 @@ class PositionCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: const Color(0xFF1E1E1E), // Dark card background
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -52,10 +52,10 @@ class PositionCard extends StatelessWidget {
               children: [
                 Text(
                   position.symbol,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 Container(
@@ -89,10 +89,12 @@ class PositionCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildInfoColumn(
+                  context,
                   'Entry Price',
                   '\$${entryPrice.toStringAsFixed(2)}',
                 ),
                 _buildInfoColumn(
+                  context,
                   'Current Price',
                   '\$${currentPrice.toStringAsFixed(2)}',
                   alignRight: true,
@@ -105,6 +107,7 @@ class PositionCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildInfoColumn(
+                  context,
                   'Amount',
                   '${amount.toStringAsFixed(0)} USDT x$leverage',
                 ),
@@ -135,6 +138,7 @@ class PositionCard extends StatelessWidget {
   }
 
   Widget _buildInfoColumn(
+    BuildContext context,
     String label,
     String value, {
     bool alignRight = false,
@@ -148,8 +152,8 @@ class PositionCard extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),

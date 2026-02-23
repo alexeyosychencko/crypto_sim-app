@@ -42,6 +42,7 @@ class MyApp extends ConsumerWidget {
     const colorSchemeLight = ColorScheme.light(
       primary: Color(0xFFFFD700),
       secondary: Colors.blueAccent,
+      surface: Colors.white,
     );
     const colorSchemeDark = ColorScheme.dark(
       primary: Color(0xFFFFD700),
@@ -52,18 +53,26 @@ class MyApp extends ConsumerWidget {
       title: 'Crypto Sim',
       themeMode: themeMode,
       theme: ThemeData.light(useMaterial3: true).copyWith(
-        scaffoldBackgroundColor: const Color(0xFF121212),
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+        cardColor: Colors.white,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0xFF1F1F1F),
+          backgroundColor: Colors.white,
           elevation: 0,
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Colors.white,
         ),
         colorScheme: colorSchemeLight,
       ),
       darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
         scaffoldBackgroundColor: const Color(0xFF121212),
+        cardColor: const Color(0xFF1E1E1E),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF1F1F1F),
           elevation: 0,
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Colors.black,
         ),
         colorScheme: colorSchemeDark,
       ),

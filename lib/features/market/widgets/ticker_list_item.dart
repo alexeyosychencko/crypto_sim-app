@@ -41,8 +41,8 @@ class TickerListItem extends StatelessWidget {
               backgroundColor: Colors.blueGrey.withValues(alpha: 0.2),
               child: Text(
                 name.isNotEmpty ? name[0] : '?',
-                style: const TextStyle(
-                  color: Colors.white,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                 ),
               ),

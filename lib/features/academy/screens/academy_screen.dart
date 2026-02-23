@@ -11,11 +11,11 @@ class AcademyScreen extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       itemCount: academyArticles.length,
-      separatorBuilder: (_, _) => const Divider(
+      separatorBuilder: (_, _) => Divider(
         height: 1,
         indent: 16,
         endIndent: 16,
-        color: Colors.white12,
+        color: Theme.of(context).dividerColor,
       ),
       itemBuilder: (context, index) {
         final Article article = academyArticles[index];
@@ -44,10 +44,10 @@ class AcademyScreen extends StatelessWidget {
               children: [
                 Text(
                   article.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),
